@@ -8,7 +8,7 @@ type GoldResponse = {
 
 async function getGoldPrice(): Promise<number | null> {
   try {
-    const res = await fetch("http://localhost:3000/api/gold", {
+    const res = await fetch("/api/gold", {
       cache: "no-store",
     });
 
