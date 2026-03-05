@@ -10,7 +10,7 @@ type MetalsLiveGoldPoint = {
 
 async function getGoldPrice() {
   try {
-    const res = await fetch("/api/gold", {
+    const res = await fetch("/api/gold"), {
       // Disable caching so we always try fresh; adjust if needed.
       cache: "no-store",
     });
