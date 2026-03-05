@@ -1,3 +1,4 @@
+"use client";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { PriceCard } from "../components/PriceCard";
 import { AlertButton } from "../components/AlertButton";
