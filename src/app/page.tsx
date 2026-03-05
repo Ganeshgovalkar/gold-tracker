@@ -7,6 +7,7 @@ import { AlertButton } from "../components/AlertButton";
 
 export default function Home() {
   const [goldPrice, setGoldPrice] = useState<number | null>(null);
+  const [grams, setGrams] = useState(10);
 
   useEffect(() => {
     async function fetchGold() {
@@ -20,11 +21,14 @@ export default function Home() {
     }
 
     fetchGold();
+
+    const interval = setInterval(fetchGold, 30000);
+    return () => clearInterval(interval);
   }, []);
 
-  const gold24k = goldPrice;
-  const gold22k = goldPrice ? goldPrice * 0.916 : null;
-  const gold18k = goldPrice ? goldPrice * 0.75 : null;
+  const gold24k = goldPrice ? goldPrice * grams : null;
+  const gold22k = goldPrice ? goldPrice * 0.916 * grams : null;
+  const gold18k = goldPrice ? goldPrice * 0.75 * grams : null;
 
   const format = (value: number | null) =>
     value !== null
@@ -36,6 +40,21 @@ export default function Home() {
 
   return (
     <DashboardLayout title="Gold Tracker" subtitle="Live Prices">
+
+      <div className="flex justify-end mb-4">
+
+        <select
+          value={grams}
+          onChange={(e) => setGrams(Number(e.target.value))}
+          className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-sm"
+        >
+          <option value={1}>1 gram</option>
+          <option value={5}>5 gram</option>
+          <option value={10}>10 gram</option>
+        </select>
+
+      </div>
+
       <section className="space-y-4">
 
         <PriceCard label="24K Gold" value={`₹${format(gold24k)}`} />
@@ -49,6 +68,7 @@ export default function Home() {
         </AlertButton>
 
       </section>
+
     </DashboardLayout>
   );
 }
