@@ -1,34 +1,30 @@
-export const dynamic = "force-dynamic";
+"use client";
+
+import { useEffect, useState } from "react";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { PriceCard } from "../components/PriceCard";
 import { AlertButton } from "../components/AlertButton";
 
-type GoldResponse = {
-  price: number;
-};
+export default function Home() {
+  const [goldPrice, setGoldPrice] = useState<number | null>(null);
 
-async function getGoldPrice(): Promise<number | null> {
-  try {
-    const res = await fetch("/api/gold", {
-      cache: "no-store",
-    });
+  useEffect(() => {
+    async function fetchGold() {
+      try {
+        const res = await fetch("/api/gold");
+        const data = await res.json();
+        setGoldPrice(data.price);
+      } catch (err) {
+        console.error("Error fetching gold:", err);
+      }
+    }
 
-    if (!res.ok) return null;
+    fetchGold();
+  }, []);
 
-    const data: GoldResponse = await res.json();
-
-    return data.price;
-  } catch (error) {
-    console.error("Error fetching gold price:", error);
-    return null;
-  }
-}
-
-export default async function Home() {
-  const gold24k = await getGoldPrice();
-
-  const gold22k = gold24k ? gold24k * 0.916 : null;
-  const gold18k = gold24k ? gold24k * 0.75 : null;
+  const gold24k = goldPrice;
+  const gold22k = goldPrice ? goldPrice * 0.916 : null;
+  const gold18k = goldPrice ? goldPrice * 0.75 : null;
 
   const format = (value: number | null) =>
     value !== null
