@@ -6,10 +6,6 @@ export async function GET() {
       cache: "no-store",
     });
 
-    if (!res.ok) {
-      throw new Error("API request failed");
-    }
-
     const data = await res.json();
 
     return Response.json(data);
