@@ -31,7 +31,7 @@ export default async function Home() {
   const gold18k = gold24k ? gold24k * 0.75 : null;
 
   const format = (value: number | null) =>
-    value
+    value !== null
       ? value.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
