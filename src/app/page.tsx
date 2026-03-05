@@ -1,30 +1,26 @@
-"use client";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { PriceCard } from "../components/PriceCard";
 import { AlertButton } from "../components/AlertButton";
 
-type MetalsLiveGoldPoint = {
-  gold: number;
-  [key: string]: unknown;
+type GoldApiResponse = {
+  price: number;
 };
 
-async function getGoldPrice() {
+async function getGoldPrice(): Promise<number | null> {
   try {
-    const res = await fetch("/api/gold", {
-  cache: "no-store",
-});
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/gold`,
+      { cache: "no-store" }
+    );
 
     if (!res.ok) {
-      console.error("Failed to fetch gold price:", res.status, res.statusText);
+      console.error("Failed to fetch gold price:", res.status);
       return null;
     }
 
-    const data = (await res.json()) as MetalsLiveGoldPoint[];
-    const latest = data[data.length - 1];
-    const price = typeof latest?.gold === "number" ? latest.gold : null;
+    const data: GoldApiResponse = await res.json();
 
-    return price;
+    return data.price ?? null;
   } catch (error) {
     console.error("Error fetching gold price:", error);
     return null;
@@ -40,8 +36,13 @@ function BellButton() {
 }
 
 export default async function Home() {
-  const goldPrice = await getGoldPrice();
+  const gold24k = await getGoldPrice();
+
+  const gold22k = gold24k ? gold24k * 0.916 : null;
+  const gold18k = gold24k ? gold24k * 0.75 : null;
+
   const now = new Date();
+
   const dateLabel = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "long",
@@ -49,9 +50,9 @@ export default async function Home() {
     year: "numeric",
   }).format(now);
 
-  const formattedSpot =
-    goldPrice !== null
-      ? goldPrice.toLocaleString(undefined, {
+  const formatPrice = (price: number | null) =>
+    price
+      ? price.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })
@@ -70,6 +71,7 @@ export default async function Home() {
               <div className="text-sm font-medium text-slate-100">
                 Live Gold Prices
               </div>
+
               <button className="flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-slate-100">
                 <span>10 gram</span>
                 <span className="text-[10px]">▾</span>
@@ -77,39 +79,49 @@ export default async function Home() {
             </div>
 
             <div className="space-y-5">
+
+              {/* 18K */}
+
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs text-slate-300">
                   <span>18K Gold</span>
-                  <span className="flex items-center gap-1 text-emerald-400">
-                    <span className="text-[10px]">↗</span>
-                    <span>+2.34%</span>
-                  </span>
                 </div>
+
                 <div className="text-3xl font-semibold tracking-tight">
-                  ₹48,540.81
-                </div>
-                <div className="text-xs text-emerald-400">
-                  +₹1,135.85 today
+                  {gold18k
+                    ? `₹${formatPrice(gold18k)}`
+                    : "Loading..."}
                 </div>
               </div>
+
+              {/* 22K */}
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs text-slate-300">
                   <span>22K Gold</span>
-                  <span className="flex items-center gap-1 text-emerald-400">
-                    <span className="text-[10px]">↗</span>
-                    <span>+1.89%</span>
-                  </span>
                 </div>
+
                 <div className="text-3xl font-semibold tracking-tight">
-                  {formattedSpot !== null ? `₹${formattedSpot}` : "₹59,204.37"}
-                </div>
-                <div className="text-xs text-emerald-400">
-                  {formattedSpot !== null
-                    ? "+₹1,118.96 today"
-                    : "+₹1,118.96 today"}
+                  {gold22k
+                    ? `₹${formatPrice(gold22k)}`
+                    : "Loading..."}
                 </div>
               </div>
+
+              {/* 24K */}
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs text-slate-300">
+                  <span>24K Gold</span>
+                </div>
+
+                <div className="text-3xl font-semibold tracking-tight">
+                  {gold24k
+                    ? `₹${formatPrice(gold24k)}`
+                    : "Loading..."}
+                </div>
+              </div>
+
             </div>
 
             <div className="pt-2">
@@ -128,4 +140,3 @@ export default async function Home() {
     </DashboardLayout>
   );
 }
-
